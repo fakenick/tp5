@@ -2,7 +2,6 @@ package punto2;
 
 import ar.edu.uner.fcad.ed.arbolesabbyavl.ArbolABB;
 import ar.edu.uner.fcad.ed.arbolesabbyavl.NodoABB;
-import ar.edu.uner.fcad.ed.arbolesbinariosyheaps.NodoArbolBinario;
 import punto3.ArbolABBExtInterfaz;
 
 /**
@@ -63,30 +62,15 @@ public class ArbolABBExt<T extends Comparable<? super T>> extends ArbolABB<T>
 
     @Override
     public void eliminarRama(NodoABB<T> nodo) {
-        var padre = this.obtenerNodoPadre(nodo.getValor());
-        //Si no tiene hijos
-        if (nodo.getCantidadHijos() == 0 && nodo.esHijoIzquierdo(padre)) {
-            padre.setHijoIzquierdo(null);
-        } else {
-            padre.setHijoDerecho(null);
-        }
-        //Si tiene solamente un hijo
-        if (nodo.tieneHijoDerecho() ^ nodo.tieneHijoIzquierdo()) {
-            if (nodo.tieneHijoDerecho() && nodo.esHijoIzquierdo(padre)) {
-                padre.setHijoIzquierdo(nodo.getHijoDerecho());
-            } else if (nodo.tieneHijoDerecho() && !nodo.esHijoIzquierdo(padre)){
-                padre.setHijoDerecho(nodo.getHijoIzquierdo());
-            }
-            if (nodo.tieneHijoIzquierdo() && !nodo.esHijoIzquierdo(padre)) {
-                padre.setHijoDerecho(nodo.getHijoDerecho());
-            } else if (nodo.tieneHijoIzquierdo() && !nodo.esHijoIzquierdo(padre)){
-                padre.setHijoIzquierdo(nodo.getHijoIzquierdo());
-            }
-            
-        }
-
+        var Padre = this.obtenerNodoPadre(nodo);
+        this.borrarNodo(Padre, nodo);
     }
 
+    /**
+     * Devuelve el ancestro compartido por los nodos x e y que se encuentra más
+     * lejos de la raíz (más profundo). En caso que alguno de los nodos no
+     * pertenezca al árbol devuelve null.
+     */
     @Override
     public NodoABB<T> menorAntecesorComun(NodoABB<T> x, NodoABB<T> y) {
 
@@ -94,23 +78,23 @@ public class ArbolABBExt<T extends Comparable<? super T>> extends ArbolABB<T>
 
     }
 
-    public NodoABB<T> obtenerNodoPadre(T valor) {
-        var nodo = this.raiz;
+    public NodoABB<T> obtenerNodoPadre(NodoABB<T> nodo) {
+        var aux = this.raiz;
         var iterador = this.iteradorEnPreOrden();
         while (iterador.existeSiguiente()) {
-            if (nodo.getHijoIzquierdo().getValor().compareTo(valor) > 1) {
-                if (nodo.getHijoIzquierdo().getValor().compareTo(valor) == 0) {
+            if (aux.getHijoIzquierdo().getValor().compareTo(nodo.getValor()) > 1) {
+                if (aux.getHijoIzquierdo().getValor().compareTo(nodo.getValor()) == 0) {
                     return nodo.getHijoIzquierdo();
                 }
-                nodo = nodo.getHijoIzquierdo();
-            } else if (nodo.getHijoDerecho().getValor().compareTo(valor) < 1) {
-                if (nodo.getHijoDerecho().getValor().compareTo(valor) == 0) {
+                aux = nodo.getHijoIzquierdo();
+            } else if (aux.getHijoDerecho().getValor().compareTo(nodo.getValor()) < 1) {
+                if (aux.getHijoDerecho().getValor().compareTo(nodo.getValor()) == 0) {
                     return nodo.getHijoDerecho();
                 }
 
-                nodo = nodo.getHijoDerecho();
+                aux = nodo.getHijoDerecho();
             } else {
-                return nodo;
+                return aux;
             }
 
             iterador.siguiente();
@@ -119,4 +103,13 @@ public class ArbolABBExt<T extends Comparable<? super T>> extends ArbolABB<T>
         return null;
     }
 
+    public NodoABB<T> obtenerNodoAntecesor(NodoABB<T> nodo) {
+        nodo = nodo.getHijoIzquierdo();
+
+        while (nodo.tieneHijoDerecho()) {
+            nodo = nodo.getHijoDerecho();
+        }
+
+        return nodo;
+    }
 }
